@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import youtubesearch.modeso.ch.youtubesearch.listeners.VideosListListener;
 import youtubesearch.modeso.ch.youtubesearch.services.ListFetchService;
+import youtubesearch.modeso.ch.youtubesearch.services.YoutubeSearchHelper;
 import youtubesearch.modeso.ch.youtubesearch.utils.Constants;
 
 /**
@@ -53,5 +56,23 @@ public class VideosListViewModel {
         intent.setAction(Constants.ACTION_SEARCH_YOUTUBE);
         intent.putExtra(Constants.SEARCH_QUERY_KEY, searchQuery);
         mContext.startService(intent);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onVideosListEvent(YoutubeSearchHelper.VideosListEvent videosListEvent) {
+        if (mSearchQuery.equals(videosListEvent.getSearchQuery())) {
+            notifyRegisteredListener(videosListEvent);
+        }
+    }
+
+    private void notifyRegisteredListener(YoutubeSearchHelper.VideosListEvent videosListEvent) {
+        switch (videosListEvent.getEventType()) {
+            case Success:
+                mListener.onListReady(videosListEvent.getVideos());
+                break;
+            case Error:
+                mListener.onError(videosListEvent.getErrorMessage());
+                break;
+        }
     }
 }

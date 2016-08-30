@@ -2,6 +2,8 @@ package youtubesearch.modeso.ch.youtubesearch.services;
 
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import youtubesearch.modeso.ch.youtubesearch.models.Video;
@@ -16,12 +18,13 @@ public abstract class YoutubeSearchHelper {
 
     private static final String TAG = YoutubeSearchHelper.class.getName();
 
-    public static void searchVideos(String searchQuery) {
+    public static void searchVideos(final String searchQuery) {
         YoutubeApiClient.searchYoutube(searchQuery, new YoutubeApiClient.ApiCallBack() {
             @Override
             public void onSuccess(ApiResponse apiResponse) {
                 if (apiResponse != null) {
-                    Log.d(TAG, "Items Size: " + VideoItemWrapper.getVideoList(apiResponse).size());
+                    EventBus.getDefault().post(new VideosListEvent(VideosListEvent.EventType.Success
+                            , VideoItemWrapper.getVideoList(apiResponse), searchQuery, null));
                 }
             }
 
@@ -29,6 +32,8 @@ public abstract class YoutubeSearchHelper {
             public void onError(ErrorResponse errorResponse) {
                 if (errorResponse != null) {
                     Log.d(TAG, errorResponse.getError().getMessage());
+                    EventBus.getDefault().post(new VideosListEvent(VideosListEvent.EventType.Error, null
+                            , searchQuery, errorResponse.getError().getMessage()));
                 }
             }
         });

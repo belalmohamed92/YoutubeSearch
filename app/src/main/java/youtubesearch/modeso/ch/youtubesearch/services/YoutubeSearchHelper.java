@@ -2,6 +2,9 @@ package youtubesearch.modeso.ch.youtubesearch.services;
 
 import android.util.Log;
 
+import java.util.List;
+
+import youtubesearch.modeso.ch.youtubesearch.models.Video;
 import youtubesearch.modeso.ch.youtubesearch.responsies.ApiResponse;
 import youtubesearch.modeso.ch.youtubesearch.responsies.ErrorResponse;
 
@@ -29,5 +32,54 @@ public abstract class YoutubeSearchHelper {
                 }
             }
         });
+    }
+
+
+    public static class VideosListEvent {
+
+        private EventType eventType;
+        private List<Video> videos;
+        private String errorMessage;
+        private String searchQuery;
+
+        public VideosListEvent(EventType eventType, List<Video> videos, String searchQuery, String errorMessage) {
+            this.eventType = eventType;
+            this.videos = videos;
+            this.searchQuery = searchQuery;
+            this.errorMessage = errorMessage;
+        }
+
+
+        public enum EventType {
+            Success,
+            Error;
+
+            public String getName() {
+                switch (this) {
+                    case Success:
+                        return "Success";
+                    case Error:
+                        return "Error";
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        public EventType getEventType() {
+            return eventType;
+        }
+
+        public List<Video> getVideos() {
+            return videos;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public String getSearchQuery() {
+            return searchQuery;
+        }
     }
 }
